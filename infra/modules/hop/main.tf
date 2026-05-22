@@ -158,7 +158,7 @@ resource "aws_lb_target_group" "hop" {
 
     timeout = 30
 
-    path = "/hop/status/"
+    path = "/hop/status"
 
     protocol = "HTTP"
 
