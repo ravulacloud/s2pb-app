@@ -46,23 +46,6 @@ resource "aws_security_group" "hop_ecs" {
   }
 
   ##########################################################
-  # HOP WEB UI PORT
-  ##########################################################
-
-  ingress {
-
-    from_port = 8081
-
-    to_port = 8081
-
-    protocol = "tcp"
-
-    security_groups = [
-      aws_security_group.hop_alb.id
-    ]
-  }
-
-  ##########################################################
   # EGRESS
   ##########################################################
 
@@ -139,7 +122,7 @@ resource "aws_lb" "hop" {
 }
 
 ############################################################
-# TARGET GROUP - HOP SERVER
+# TARGET GROUP
 ############################################################
 
 resource "aws_lb_target_group" "hop" {
@@ -159,6 +142,10 @@ resource "aws_lb_target_group" "hop" {
     create_before_destroy = true
   }
 
+  ##########################################################
+  # HEALTH CHECK
+  ##########################################################
+
   health_check {
 
     enabled = true
@@ -172,47 +159,6 @@ resource "aws_lb_target_group" "hop" {
     timeout = 30
 
     path = "/hop/status/"
-
-    protocol = "HTTP"
-
-    matcher = "200-399"
-  }
-}
-
-############################################################
-# TARGET GROUP - HOP WEB
-############################################################
-
-resource "aws_lb_target_group" "hop_web" {
-
-  name_prefix = "web-"
-
-  port = 8081
-
-  protocol = "HTTP"
-
-  target_type = "ip"
-
-  vpc_id = var.vpc_id
-
-  lifecycle {
-
-    create_before_destroy = true
-  }
-
-  health_check {
-
-    enabled = true
-
-    healthy_threshold = 2
-
-    unhealthy_threshold = 5
-
-    interval = 60
-
-    timeout = 30
-
-    path = "/"
 
     protocol = "HTTP"
 
@@ -241,32 +187,6 @@ resource "aws_lb_listener" "hop" {
 }
 
 ############################################################
-# LISTENER RULE - HOP WEB
-############################################################
-
-resource "aws_lb_listener_rule" "hop_web" {
-
-  listener_arn = aws_lb_listener.hop.arn
-
-  priority = 100
-
-  action {
-
-    type = "forward"
-
-    target_group_arn = aws_lb_target_group.hop_web.arn
-  }
-
-  condition {
-
-    path_pattern {
-
-      values = ["/ui*"]
-    }
-  }
-}
-
-############################################################
 # ECS TASK DEFINITION
 ############################################################
 
@@ -285,10 +205,6 @@ resource "aws_ecs_task_definition" "hop" {
   execution_role_arn = var.ecs_task_execution_role_arn
 
   container_definitions = jsonencode([
-
-    ########################################################
-    # HOP SERVER CONTAINER
-    ########################################################
 
     {
 
@@ -310,6 +226,10 @@ resource "aws_ecs_task_definition" "hop" {
         }
       ]
 
+      ######################################################
+      # CLOUDWATCH LOGS
+      ######################################################
+
       logConfiguration = {
 
         logDriver = "awslogs"
@@ -321,53 +241,6 @@ resource "aws_ecs_task_definition" "hop" {
           awslogs-region = var.aws_region
 
           awslogs-stream-prefix = "hop-server"
-        }
-      }
-    },
-
-    ########################################################
-    # HOP WEB CONTAINER
-    ########################################################
-
-    {
-
-      name = "reward-loyalty-hop-web"
-
-      image = "${var.ecr_repository_url}:reward-loyalty-hop-web-${var.env}"
-
-      essential = true
-
-      portMappings = [
-
-        {
-
-          containerPort = 8081
-
-          hostPort = 8081
-
-          protocol = "tcp"
-        }
-      ]
-
-      environment = [
-
-        {
-          name  = "HOP_WEB_PORT"
-          value = "8081"
-        }
-      ]
-
-      logConfiguration = {
-
-        logDriver = "awslogs"
-
-        options = {
-
-          awslogs-group = aws_cloudwatch_log_group.hop.name
-
-          awslogs-region = var.aws_region
-
-          awslogs-stream-prefix = "hop-web"
         }
       }
     }
@@ -402,7 +275,7 @@ resource "aws_ecs_service" "hop" {
   }
 
   ##########################################################
-  # HOP SERVER TARGET GROUP
+  # LOAD BALANCER
   ##########################################################
 
   load_balancer {
@@ -414,21 +287,7 @@ resource "aws_ecs_service" "hop" {
     container_port = 8080
   }
 
-  ##########################################################
-  # HOP WEB TARGET GROUP
-  ##########################################################
-
-  load_balancer {
-
-    target_group_arn = aws_lb_target_group.hop_web.arn
-
-    container_name = "reward-loyalty-hop-web"
-
-    container_port = 8081
-  }
-
   depends_on = [
-    aws_lb_listener.hop,
-    aws_lb_listener_rule.hop_web
+    aws_lb_listener.hop
   ]
 }
