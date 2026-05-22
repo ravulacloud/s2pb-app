@@ -2,7 +2,25 @@
 name: Hop-WebUI-Deploy
 
 on:
+
   workflow_dispatch:
+
+    inputs:
+
+      environment:
+
+        description: "Select environment"
+
+        required: true
+
+        default: dev
+
+        type: choice
+
+        options:
+          - dev
+          - staging
+          - prod
 
 permissions:
   id-token: write
@@ -20,18 +38,17 @@ jobs:
 
       AWS_ACCOUNT_ID: 298493767003
 
+      ENVIRONMENT: ${{ github.event.inputs.environment || 'dev' }}
+
       ECR_REPOSITORY: glorytechsystems-platform-images
 
-      IMAGE_TAG: reward-loyalty-hop-web-dev
+      IMAGE_TAG: reward-loyalty-hop-web-${{ github.event.inputs.environment || 'dev' }}
 
-      IMAGE_URI: >-
-        298493767003.dkr.ecr.ap-south-1.amazonaws.com/
-        glorytechsystems-platform-images:
-        reward-loyalty-hop-web-dev
+      IMAGE_URI: 298493767003.dkr.ecr.ap-south-1.amazonaws.com/glorytechsystems-platform-images:reward-loyalty-hop-web-${{ github.event.inputs.environment || 'dev' }}
 
-      ECS_CLUSTER_NAME: reward-loyalty-ecs-dev
+      ECS_CLUSTER_NAME: reward-loyalty-ecs-${{ github.event.inputs.environment || 'dev' }}
 
-      ECS_SERVICE_NAME: reward-loyalty-hop-service-dev
+      ECS_SERVICE_NAME: reward-loyalty-hop-service-${{ github.event.inputs.environment || 'dev' }}
 
     steps:
 
@@ -122,5 +139,27 @@ jobs:
           echo "======================================="
 
           echo "Hop Web UI Deployment Successful"
+
+          echo "======================================="
+
+          echo "Environment: $ENVIRONMENT"
+
+          echo ""
+
+          echo "Image URI:"
+
+          echo "$IMAGE_URI"
+
+          echo ""
+
+          echo "ECS Cluster:"
+
+          echo "$ECS_CLUSTER_NAME"
+
+          echo ""
+
+          echo "ECS Service:"
+
+          echo "$ECS_SERVICE_NAME"
 
           echo "======================================="
