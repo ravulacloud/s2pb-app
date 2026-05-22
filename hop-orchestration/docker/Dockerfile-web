@@ -1,0 +1,13 @@
+FROM apache/hop-web:latest
+
+WORKDIR /files
+
+COPY workflows /files/workflows
+COPY pipelines /files/pipelines
+COPY jdbc /files/jdbc
+COPY config /files/config
+COPY scripts /files/scripts
+
+RUN chmod +x /files/scripts/*.sh || true
+
+EXPOSE 8081

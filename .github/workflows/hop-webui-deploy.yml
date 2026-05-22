@@ -1,0 +1,122 @@
+name: Hop-WebUI-Deploy
+
+on:
+
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+
+  hop-web-deploy:
+
+    runs-on: ubuntu-latest
+
+    env:
+
+      AWS_REGION: ap-south-1
+
+      AWS_ACCOUNT_ID: 298493767003
+
+      ECR_REPOSITORY: glorytechsystems-platform-images
+
+      IMAGE_TAG: reward-loyalty-hop-web-dev
+
+      IMAGE_URI: 298493767003.dkr.ecr.ap-south-1.amazonaws.com/glorytechsystems-platform-images:reward-loyalty-hop-web-dev
+
+      ECS_CLUSTER_NAME: reward-loyalty-ecs-dev
+
+      ECS_SERVICE_NAME: reward-loyalty-hop-service-dev
+
+    steps:
+
+    #######################################################
+    # CHECKOUT
+    #######################################################
+
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    #######################################################
+    # CONFIGURE AWS
+    #######################################################
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+
+      with:
+
+        role-to-assume: arn:aws:iam::298493767003:role/reward-loyality-githubaction-role
+
+        aws-region: ap-south-1
+
+    #######################################################
+    # LOGIN TO ECR
+    #######################################################
+
+    - name: Login to Amazon ECR
+      uses: aws-actions/amazon-ecr-login@v2
+
+    #######################################################
+    # BUILD WEB UI IMAGE
+    #######################################################
+
+    - name: Build Docker Image
+
+      run: |
+
+        docker build \
+          --no-cache \
+          -t reward-loyalty-hop-web \
+          -f hop-orchestration/docker/Dockerfile-web \
+          ./hop-orchestration
+
+    #######################################################
+    # TAG IMAGE
+    #######################################################
+
+    - name: Tag Docker Image
+
+      run: |
+
+        docker tag reward-loyalty-hop-web:latest $IMAGE_URI
+
+    #######################################################
+    # PUSH IMAGE
+    #######################################################
+
+    - name: Push Docker Image
+
+      run: |
+
+        docker push $IMAGE_URI
+
+    #######################################################
+    # RESTART ECS SERVICE
+    #######################################################
+
+    - name: Restart ECS Service
+
+      run: |
+
+        aws ecs update-service \
+          --cluster $ECS_CLUSTER_NAME \
+          --service $ECS_SERVICE_NAME \
+          --force-new-deployment \
+          --region $AWS_REGION
+
+    #######################################################
+    # SUCCESS
+    #######################################################
+
+    - name: Deployment Successful
+
+      run: |
+
+        echo "======================================="
+
+        echo "Hop Web UI Deployment Successful"
+
+        echo "======================================="

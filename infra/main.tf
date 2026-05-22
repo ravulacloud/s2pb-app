@@ -129,7 +129,17 @@ module "hop" {
 
   source = "./modules/hop"
 
+  ##########################################################
+  # ENVIRONMENT
+  ##########################################################
+
   env = var.env
+
+  aws_region = var.aws_region
+
+  ##########################################################
+  # NETWORKING
+  ##########################################################
 
   vpc_id = module.vpc.vpc_id
 
@@ -137,9 +147,15 @@ module "hop" {
 
   private_subnets = module.vpc.private_subnets
 
-  aws_region = var.aws_region
+  ##########################################################
+  # ECS
+  ##########################################################
 
   ecs_task_execution_role_arn = module.iam.ecs_task_execution_role_arn
+
+  ##########################################################
+  # ECR
+  ##########################################################
 
   ecr_repository_url = "298493767003.dkr.ecr.ap-south-1.amazonaws.com/glorytechsystems-platform-images"
 }
