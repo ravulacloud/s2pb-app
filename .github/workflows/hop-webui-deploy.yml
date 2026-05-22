@@ -1,7 +1,7 @@
+---
 name: Hop-WebUI-Deploy
 
 on:
-
   workflow_dispatch:
 
 permissions:
@@ -24,7 +24,10 @@ jobs:
 
       IMAGE_TAG: reward-loyalty-hop-web-dev
 
-      IMAGE_URI: 298493767003.dkr.ecr.ap-south-1.amazonaws.com/glorytechsystems-platform-images:reward-loyalty-hop-web-dev
+      IMAGE_URI: >-
+        298493767003.dkr.ecr.ap-south-1.amazonaws.com/
+        glorytechsystems-platform-images:
+        reward-loyalty-hop-web-dev
 
       ECS_CLUSTER_NAME: reward-loyalty-ecs-dev
 
@@ -32,91 +35,94 @@ jobs:
 
     steps:
 
-    #######################################################
-    # CHECKOUT
-    #######################################################
+      #######################################################
+      # CHECKOUT
+      #######################################################
 
-    - name: Checkout Repository
-      uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-    #######################################################
-    # CONFIGURE AWS
-    #######################################################
+      #######################################################
+      # CONFIGURE AWS
+      #######################################################
 
-    - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v4
+      - name: Configure AWS Credentials
 
-      with:
+        uses: aws-actions/configure-aws-credentials@v4
 
-        role-to-assume: arn:aws:iam::298493767003:role/reward-loyality-githubaction-role
+        with:
 
-        aws-region: ap-south-1
+          role-to-assume: >-
+            arn:aws:iam::298493767003:
+            role/reward-loyality-githubaction-role
 
-    #######################################################
-    # LOGIN TO ECR
-    #######################################################
+          aws-region: ap-south-1
 
-    - name: Login to Amazon ECR
-      uses: aws-actions/amazon-ecr-login@v2
+      #######################################################
+      # LOGIN TO ECR
+      #######################################################
 
-    #######################################################
-    # BUILD WEB UI IMAGE
-    #######################################################
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
 
-    - name: Build Docker Image
+      #######################################################
+      # BUILD WEB UI IMAGE
+      #######################################################
 
-      run: |
+      - name: Build Docker Image
 
-        docker build \
-          --no-cache \
-          -t reward-loyalty-hop-web \
-          -f hop-orchestration/docker/Dockerfile-web \
-          ./hop-orchestration
+        run: |
 
-    #######################################################
-    # TAG IMAGE
-    #######################################################
+          docker build \
+            --no-cache \
+            -t reward-loyalty-hop-web \
+            -f hop-orchestration/docker/Dockerfile-web \
+            ./hop-orchestration
 
-    - name: Tag Docker Image
+      #######################################################
+      # TAG IMAGE
+      #######################################################
 
-      run: |
+      - name: Tag Docker Image
 
-        docker tag reward-loyalty-hop-web:latest $IMAGE_URI
+        run: |
 
-    #######################################################
-    # PUSH IMAGE
-    #######################################################
+          docker tag reward-loyalty-hop-web:latest $IMAGE_URI
 
-    - name: Push Docker Image
+      #######################################################
+      # PUSH IMAGE
+      #######################################################
 
-      run: |
+      - name: Push Docker Image
 
-        docker push $IMAGE_URI
+        run: |
 
-    #######################################################
-    # RESTART ECS SERVICE
-    #######################################################
+          docker push $IMAGE_URI
 
-    - name: Restart ECS Service
+      #######################################################
+      # RESTART ECS SERVICE
+      #######################################################
 
-      run: |
+      - name: Restart ECS Service
 
-        aws ecs update-service \
-          --cluster $ECS_CLUSTER_NAME \
-          --service $ECS_SERVICE_NAME \
-          --force-new-deployment \
-          --region $AWS_REGION
+        run: |
 
-    #######################################################
-    # SUCCESS
-    #######################################################
+          aws ecs update-service \
+            --cluster $ECS_CLUSTER_NAME \
+            --service $ECS_SERVICE_NAME \
+            --force-new-deployment \
+            --region $AWS_REGION
 
-    - name: Deployment Successful
+      #######################################################
+      # SUCCESS
+      #######################################################
 
-      run: |
+      - name: Deployment Successful
 
-        echo "======================================="
+        run: |
 
-        echo "Hop Web UI Deployment Successful"
+          echo "======================================="
 
-        echo "======================================="
+          echo "Hop Web UI Deployment Successful"
+
+          echo "======================================="
