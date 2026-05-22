@@ -52,9 +52,7 @@ jobs:
 
         with:
 
-          role-to-assume: >-
-            arn:aws:iam::298493767003:
-            role/reward-loyality-githubaction-role
+          role-to-assume: arn:aws:iam::298493767003:role/reward-loyality-githubaction-role
 
           aws-region: ap-south-1
 
