@@ -1,7 +1,7 @@
 terraform {
   backend "s3" {
-    bucket         = "vadivel-terraform-bucket"
-    key            = "reward_loyality/terraform.tfstate"
+    bucket         = "ravula-terraform-bucket"
+    key            = "s2pb-app/terraform.tfstate"
     region         = "ap-south-1"
     dynamodb_table = "terraform-lock"
   }
