@@ -23,7 +23,7 @@ resource "aws_lb_target_group" "airflow" {
 
   health_check {
 
-    path    = "/airflow/health"
+    path    = "/health"
     matcher = "200"
 
     interval = 60
@@ -90,13 +90,8 @@ resource "aws_ecs_task_definition" "airflow" {
           name = "_AIRFLOW_WWW_USER_PASSWORD"
 
           value = "admin"
-        },
-
-        {
-          name = "AIRFLOW__WEBSERVER__BASE_URL"
-
-          value = "http://${var.alb_dns_name}/airflow"
         }
+     
       ]
       logConfiguration = {
 
