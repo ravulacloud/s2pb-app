@@ -46,13 +46,6 @@ jobs:
 
     env:
       TF_IN_AUTOMATION: true
-
-      TF_VAR_databricks_host:
-        ${{ secrets.DATABRICKS_HOST }}
-
-      TF_VAR_databricks_token:
-        ${{ secrets.DATABRICKS_TOKEN }}
-
     steps:
 
     #########################################
@@ -70,8 +63,7 @@ jobs:
       uses: aws-actions/configure-aws-credentials@v4
 
       with:
-        role-to-assume:
-          arn:aws:iam::298493767003:role/reward-loyality-githubaction-role
+        role-to-assume: arn:aws:iam::986401823783:role/s2pb-githubaction-role
 
         aws-region: ap-south-1
 

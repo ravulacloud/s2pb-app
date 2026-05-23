@@ -20,20 +20,6 @@ variable "db_username" {}
 variable "db_password" {}
 variable "db_name" {}
 
-variable "databricks_host" {
-  type    = string
-  default = ""
-}
-
-variable "databricks_token" {
-  type    = string
-  default = ""
-}
-variable "enable_databricks" {
-  type    = bool
-  default = false
-}
-
 variable "key_name" {
   description = "EC2 key pair name"
   type        = string
@@ -42,11 +28,6 @@ variable "key_name" {
 variable "hop_url" {}
 variable "hop_username" {}
 variable "hop_password" {}
-
-variable "mysql_user" {}
-variable "mysql_password" {}
-variable "mysql_database" {}
-
 variable "aws_region" {
 
   type = string

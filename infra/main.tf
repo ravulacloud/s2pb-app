@@ -74,13 +74,6 @@ resource "aws_security_group_rule" "bastion_to_rds" {
   source_security_group_id = module.ec2.sg_id
 }
 
-module "databricks" {
-  source = "./modules/databricks"
-  count  = var.enable_databricks ? 1 : 0
-
-  cluster_name = local.cluster_name
-}
-
 
 module "lambda" {
 
@@ -157,5 +150,5 @@ module "hop" {
   # ECR
   ##########################################################
 
-  ecr_repository_url = "298493767003.dkr.ecr.ap-south-1.amazonaws.com/glorytechsystems-platform-images"
+  ecr_repository_url = ".dkr.ecr.ap-south-1.amazonaws.com/glorytechsystems-platform-images"
 }

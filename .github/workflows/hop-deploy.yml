@@ -41,7 +41,7 @@ jobs:
 
       AWS_REGION: ap-south-1
 
-      AWS_ACCOUNT_ID: 298493767003
+      AWS_ACCOUNT_ID: 986401823783
 
       ENVIRONMENT: ${{ github.event.inputs.environment || 'dev' }}
 
@@ -49,7 +49,7 @@ jobs:
 
       IMAGE_TAG: reward-loyalty-${{ github.event.inputs.environment || 'dev' }}
 
-      IMAGE_URI: 298493767003.dkr.ecr.ap-south-1.amazonaws.com/glorytechsystems-platform-images:reward-loyalty-${{ github.event.inputs.environment || 'dev' }}
+      IMAGE_URI: 986401823783.dkr.ecr.ap-south-1.amazonaws.com/glorytechsystems-platform-images:reward-loyalty-${{ github.event.inputs.environment || 'dev' }}
 
       ECS_CLUSTER_NAME: reward-loyalty-ecs-${{ github.event.inputs.environment || 'dev' }}
 
@@ -73,7 +73,7 @@ jobs:
 
         with:
 
-          role-to-assume: arn:aws:iam::298493767003:role/reward-loyality-githubaction-role
+          role-to-assume: arn:aws:iam::986401823783:role/s2pb-githubaction-role
 
           aws-region: ap-south-1
 

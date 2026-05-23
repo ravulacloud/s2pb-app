@@ -11,9 +11,6 @@ locals {
   rds_name = "rl-db-${var.env}"
 
   iam_role_name = "role_${local.name_suffix}"
-
-  cluster_name = "cluster_${local.name_suffix}"
-
   #########################################
   # SOURCE DATABASE
   #########################################

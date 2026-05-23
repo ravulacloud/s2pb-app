@@ -19,8 +19,3 @@ terraform {
 provider "aws" {
   region = var.region
 }
-
-provider "databricks" {
-  host  = var.enable_databricks ? var.databricks_host : null
-  token = var.enable_databricks ? var.databricks_token : null
-}
