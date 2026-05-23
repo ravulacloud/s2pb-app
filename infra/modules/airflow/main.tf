@@ -23,7 +23,7 @@ resource "aws_lb_target_group" "airflow" {
 
   health_check {
 
-    path    = "/health"
+    path    = "/airflow/health"
     matcher = "200"
 
     interval = 60
