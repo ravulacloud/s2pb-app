@@ -78,14 +78,7 @@ resource "aws_ecs_task_definition" "airflow" {
           protocol = "tcp"
         }
       ]
-
       environment = [
-
-        {
-          name = "AIRFLOW__CORE__EXECUTOR"
-
-          value = "SequentialExecutor"
-        },
 
         {
           name = "AIRFLOW__CORE__LOAD_EXAMPLES"
@@ -103,9 +96,14 @@ resource "aws_ecs_task_definition" "airflow" {
           name = "_AIRFLOW_WWW_USER_PASSWORD"
 
           value = "admin"
+        },
+
+        {
+          name = "AIRFLOW__WEBSERVER__BASE_URL"
+
+          value = "http://${var.alb_dns_name}/airflow"
         }
       ]
-
       logConfiguration = {
 
         logDriver = "awslogs"
