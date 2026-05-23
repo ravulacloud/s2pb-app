@@ -84,7 +84,7 @@ resource "aws_ecs_task_definition" "airflow" {
         {
           name = "AIRFLOW__CORE__EXECUTOR"
 
-          value = "LocalExecutor"
+          value = "SequentialExecutor"
         },
 
         {
