@@ -96,7 +96,7 @@ jobs:
       run: |
 
         terraform init -upgrade \
-          -backend-config="key=reward_loyality/${{ github.event.inputs.environment }}/terraform.tfstate"
+          -backend-config="key=s2pb-app/${{ github.event.inputs.environment }}/terraform.tfstate"
 
     #########################################
     # TERRAFORM VALIDATE
@@ -199,7 +199,7 @@ jobs:
 
         aws ecr batch-delete-image \
           --repository-name glorytechsystems-platform-images \
-          --image-ids imageTag=reward-loyalty-${{ github.event.inputs.environment }} \
+          --image-ids imageTag=s2pb-app-${{ github.event.inputs.environment }} \
           --region ap-south-1 || true
 
         echo "======================================"

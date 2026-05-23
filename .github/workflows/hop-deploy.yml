@@ -43,17 +43,19 @@ jobs:
 
       AWS_ACCOUNT_ID: 986401823783
 
+      APP_NAME: s2pb-app
+
       ENVIRONMENT: ${{ github.event.inputs.environment || 'dev' }}
 
       ECR_REPOSITORY: glorytechsystems-platform-images
 
-      IMAGE_TAG: reward-loyalty-${{ github.event.inputs.environment || 'dev' }}
+      IMAGE_TAG: s2pb-app-${{ github.event.inputs.environment || 'dev' }}
 
-      IMAGE_URI: 986401823783.dkr.ecr.ap-south-1.amazonaws.com/glorytechsystems-platform-images:reward-loyalty-${{ github.event.inputs.environment || 'dev' }}
+      IMAGE_URI: 986401823783.dkr.ecr.ap-south-1.amazonaws.com/glorytechsystems-platform-images:s2pb-app-${{ github.event.inputs.environment || 'dev' }}
 
-      ECS_CLUSTER_NAME: reward-loyalty-ecs-${{ github.event.inputs.environment || 'dev' }}
+      ECS_CLUSTER_NAME: s2pb-app-ecs-${{ github.event.inputs.environment || 'dev' }}
 
-      ECS_SERVICE_NAME: reward-loyalty-hop-service-${{ github.event.inputs.environment || 'dev' }}
+      ECS_SERVICE_NAME: s2pb-app-hop-service-${{ github.event.inputs.environment || 'dev' }}
 
     steps:
 
@@ -69,6 +71,7 @@ jobs:
       #######################################################
 
       - name: Configure AWS Credentials
+
         uses: aws-actions/configure-aws-credentials@v4
 
         with:
@@ -94,7 +97,7 @@ jobs:
 
           docker build \
             --no-cache \
-            -t reward-loyalty-hop \
+            -t s2pb-app-hop \
             -f hop-orchestration/docker/Dockerfile \
             ./hop-orchestration
 
@@ -106,7 +109,7 @@ jobs:
 
         run: |
 
-          docker tag reward-loyalty-hop:latest $IMAGE_URI
+          docker tag s2pb-app-hop:latest $IMAGE_URI
 
       #######################################################
       # PUSH IMAGE TO ECR
