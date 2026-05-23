@@ -15,30 +15,24 @@ resource "aws_cloudwatch_log_group" "airflow" {
 
 resource "aws_lb_target_group" "airflow" {
 
-  name = "${var.app_name}-airflow-tg"
-
-  port = 8080
-
-  protocol = "HTTP"
-
+  name        = "${var.app_name}-airflow-tg"
+  port        = 8080
+  protocol    = "HTTP"
   target_type = "ip"
-
-  vpc_id = var.vpc_id
+  vpc_id      = var.vpc_id
 
   health_check {
 
-    path = "/health"
+    path    = "/health"
+    matcher = "200"
 
-    interval = 30
+    interval = 60
+    timeout  = 30
 
-    timeout = 5
-
-    healthy_threshold = 2
-
-    unhealthy_threshold = 3
+    healthy_threshold   = 2
+    unhealthy_threshold = 5
   }
 }
-
 #########################################
 # ECS TASK DEFINITION
 #########################################
@@ -124,18 +118,15 @@ resource "aws_ecs_task_definition" "airflow" {
 #########################################
 # ECS SERVICE
 #########################################
-
 resource "aws_ecs_service" "airflow" {
 
-  name = "${var.app_name}-airflow-service-${var.env}"
-
-  cluster = var.ecs_cluster_id
-
+  name            = "${var.app_name}-airflow-service-${var.env}"
+  cluster         = var.ecs_cluster_id
   task_definition = aws_ecs_task_definition.airflow.arn
+  desired_count   = 1
+  launch_type     = "FARGATE"
 
-  desired_count = 1
-
-  launch_type = "FARGATE"
+  health_check_grace_period_seconds = 300
 
   network_configuration {
 
@@ -161,7 +152,6 @@ resource "aws_ecs_service" "airflow" {
     aws_lb_target_group.airflow
   ]
 }
-
 
 resource "aws_lb_listener_rule" "airflow" {
 
