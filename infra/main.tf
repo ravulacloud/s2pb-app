@@ -228,3 +228,26 @@ module "hop" {
 
   ecr_repository_url = "986401823783.dkr.ecr.ap-south-1.amazonaws.com/glorytechsystems-platform-images"
 }
+
+module "airflow" {
+
+  source = "./modules/airflow"
+
+  app_name = local.app_name
+
+  env = var.env
+
+  vpc_id = module.vpc.vpc_id
+
+  public_subnets = module.vpc.public_subnets
+
+  ecs_cluster_id = module.hop.ecs_cluster_id
+
+  ecs_cluster_name = module.hop.ecs_cluster_name
+
+  ecs_task_execution_role_arn = module.iam.ecs_task_execution_role_arn
+
+  aws_region = var.aws_region
+
+  ecr_repository_url = "986401823783.dkr.ecr.ap-south-1.amazonaws.com/glorytechsystems-platform-images"
+}

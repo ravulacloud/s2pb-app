@@ -1,4 +1,4 @@
-name: Hop-Deploy
+name: Airflow-Deploy
 
 on:
 
@@ -8,7 +8,7 @@ on:
       - main
 
     paths:
-      - 'hop-orchestration/**'
+      - 'airflow-orchestration/**'
 
   workflow_dispatch:
 
@@ -31,7 +31,7 @@ permissions:
 
 jobs:
 
-  hop-deploy:
+  airflow-deploy:
 
     runs-on: ubuntu-latest
 
@@ -49,13 +49,13 @@ jobs:
 
       ECR_REPOSITORY: glorytechsystems-platform-images
 
-      IMAGE_TAG: s2pb-app-${{ github.event.inputs.environment || 'dev' }}
+      IMAGE_TAG: s2pb-app-airflow-${{ github.event.inputs.environment || 'dev' }}
 
-      IMAGE_URI: 986401823783.dkr.ecr.ap-south-1.amazonaws.com/glorytechsystems-platform-images:s2pb-app-${{ github.event.inputs.environment || 'dev' }}
+      IMAGE_URI: 986401823783.dkr.ecr.ap-south-1.amazonaws.com/glorytechsystems-platform-images:s2pb-app-airflow-${{ github.event.inputs.environment || 'dev' }}
 
       ECS_CLUSTER_NAME: s2pb-app-ecs-${{ github.event.inputs.environment || 'dev' }}
 
-      ECS_SERVICE_NAME: s2pb-app-hop-service-${{ github.event.inputs.environment || 'dev' }}
+      ECS_SERVICE_NAME: s2pb-app-airflow-service-${{ github.event.inputs.environment || 'dev' }}
 
     steps:
 
@@ -64,6 +64,7 @@ jobs:
       #######################################################
 
       - name: Checkout Repository
+
         uses: actions/checkout@v4
 
       #######################################################
@@ -85,6 +86,7 @@ jobs:
       #######################################################
 
       - name: Login to Amazon ECR
+
         uses: aws-actions/amazon-ecr-login@v2
 
       #######################################################
@@ -97,9 +99,9 @@ jobs:
 
           docker build \
             --no-cache \
-            -t s2pb-app-hop \
-            -f hop-orchestration/docker/Dockerfile \
-            ./hop-orchestration
+            -t s2pb-app-airflow \
+            -f airflow-orchestration/docker/Dockerfile \
+            ./airflow-orchestration
 
       #######################################################
       # TAG DOCKER IMAGE
@@ -109,7 +111,7 @@ jobs:
 
         run: |
 
-          docker tag s2pb-app-hop:latest $IMAGE_URI
+          docker tag s2pb-app-airflow:latest $IMAGE_URI
 
       #######################################################
       # PUSH IMAGE TO ECR
@@ -145,7 +147,7 @@ jobs:
 
           echo "======================================="
 
-          echo "Apache Hop Deployment Successful"
+          echo "Apache Airflow Deployment Successful"
 
           echo "======================================="
 
