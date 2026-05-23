@@ -12,5 +12,5 @@ output "ecs_cluster_name" {
 }
 
 output "alb_listener_arn" {
-  value = aws_lb_listener.http.arn
+  value = aws_lb_listener.this.arn
 }

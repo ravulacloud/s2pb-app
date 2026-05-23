@@ -170,7 +170,7 @@ resource "aws_lb_target_group" "hop" {
 # LISTENER
 ############################################################
 
-resource "aws_lb_listener" "hop" {
+resource "aws_lb_listener" "this" {
 
   load_balancer_arn = aws_lb.hop.arn
 
