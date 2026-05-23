@@ -163,3 +163,26 @@ resource "aws_ecs_service" "airflow" {
     aws_lb_target_group.airflow
   ]
 }
+
+
+resource "aws_lb_listener_rule" "airflow" {
+
+  listener_arn = var.alb_listener_arn
+
+  priority = 200
+
+  action {
+
+    type = "forward"
+
+    target_group_arn = aws_lb_target_group.airflow.arn
+  }
+
+  condition {
+
+    path_pattern {
+
+      values = ["/airflow*"]
+    }
+  }
+}

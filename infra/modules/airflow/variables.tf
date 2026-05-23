@@ -42,3 +42,13 @@ variable "ecr_repository_url" {
 
   type = string
 }
+
+variable "alb_listener_arn" {
+
+  type = string
+}
+
+variable "alb_dns_name" {
+
+  type = string
+}

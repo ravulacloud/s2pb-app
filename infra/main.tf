@@ -249,5 +249,9 @@ module "airflow" {
 
   aws_region = var.aws_region
 
-  ecr_repository_url = "986401823783.dkr.ecr.ap-south-1.amazonaws.com/glorytechsystems-platform-images"
+  ecr_repository_url ="986401823783.dkr.ecr.ap-south-1.amazonaws.com/glorytechsystems-platform-images"
+
+  alb_listener_arn = module.hop.alb_listener_arn
+
+  alb_dns_name =module.hop.alb_dns
 }

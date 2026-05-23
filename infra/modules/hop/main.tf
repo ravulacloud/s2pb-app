@@ -67,7 +67,7 @@ resource "aws_security_group" "hop_ecs" {
 
 resource "aws_security_group" "hop_alb" {
 
-  name = "${var.app_name}-hop-alb-sg-${var.env}"
+  name = "${var.app_name}-alb-sg-${var.env}"
 
   vpc_id = var.vpc_id
 
@@ -108,7 +108,7 @@ resource "aws_security_group" "hop_alb" {
 
 resource "aws_lb" "hop" {
 
-  name = "${var.app_name}-hop-alb-${var.env}"
+  name = "${var.app_name}-alb-${var.env}"
 
   internal = false
 
