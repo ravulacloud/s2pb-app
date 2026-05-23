@@ -4,14 +4,14 @@
 
 resource "aws_dms_replication_subnet_group" "this" {
 
-  replication_subnet_group_id = "${var.env}-dms-subnet-group"
+  replication_subnet_group_id = "${var.app_name}-${var.env}-dms-subnet-group"
 
   replication_subnet_group_description = "DMS subnet group"
 
   subnet_ids = var.private_subnets
 
   tags = {
-    Name = "${var.env}-dms-subnet-group"
+    Name = "${var.app_name}-${var.env}-dms-subnet-group"
   }
 
   depends_on = [
@@ -25,7 +25,7 @@ resource "aws_dms_replication_subnet_group" "this" {
 
 resource "aws_security_group" "dms_sg" {
 
-  name = "${var.env}-dms-sg"
+  name = "${var.app_name}-${var.env}-dms-sg"
 
   vpc_id = var.vpc_id
 
@@ -41,10 +41,10 @@ resource "aws_security_group" "dms_sg" {
   }
 
   tags = {
-    Name = "${var.env}-dms-sg"
+
+    Name = "${var.app_name}-${var.env}-dms-sg"
   }
 }
-
 
 #########################################
 # DMS REPLICATION INSTANCE
@@ -52,7 +52,7 @@ resource "aws_security_group" "dms_sg" {
 
 resource "aws_dms_replication_instance" "dms_instance" {
 
-  replication_instance_id = "mysql-dms-instance"
+  replication_instance_id = "${var.app_name}-${var.env}-dms-instance"
 
   replication_instance_class = "dms.t3.small"
 
@@ -85,7 +85,8 @@ resource "aws_dms_replication_instance" "dms_instance" {
   }
 
   tags = {
-    Name = "${var.env}-mysql-dms-instance"
+
+    Name = "${var.app_name}-${var.env}-dms-instance"
   }
 }
 
@@ -95,7 +96,7 @@ resource "aws_dms_replication_instance" "dms_instance" {
 
 resource "aws_dms_endpoint" "mysql_source" {
 
-  endpoint_id = "${var.env}-mysql-source"
+  endpoint_id = "${var.app_name}-${var.env}-mysql-source"
 
   endpoint_type = "source"
 
@@ -114,7 +115,8 @@ resource "aws_dms_endpoint" "mysql_source" {
   ssl_mode = "none"
 
   tags = {
-    Name = "${var.env}-mysql-source"
+
+    Name = "${var.app_name}-${var.env}-mysql-source"
   }
 }
 
@@ -124,7 +126,7 @@ resource "aws_dms_endpoint" "mysql_source" {
 
 resource "aws_dms_endpoint" "mysql_target" {
 
-  endpoint_id = "${var.env}-mysql-target"
+  endpoint_id = "${var.app_name}-${var.env}-mysql-target"
 
   endpoint_type = "target"
 
@@ -143,16 +145,18 @@ resource "aws_dms_endpoint" "mysql_target" {
   ssl_mode = "none"
 
   tags = {
-    Name = "${var.env}-mysql-target"
+
+    Name = "${var.app_name}-${var.env}-mysql-target"
   }
 }
 
 #########################################
 # DMS REPLICATION TASK
 #########################################
+
 resource "aws_dms_replication_task" "mysql_cdc_task" {
 
-  replication_task_id = "${var.env}-mysql-cdc-task"
+  replication_task_id = "${var.app_name}-${var.env}-mysql-cdc-task"
 
   migration_type = "full-load-and-cdc"
 
@@ -167,6 +171,7 @@ resource "aws_dms_replication_task" "mysql_cdc_task" {
     rules = [
 
       {
+
         "rule-type" = "selection"
 
         "rule-id" = "1"
@@ -228,6 +233,7 @@ resource "aws_dms_replication_task" "mysql_cdc_task" {
   ]
 
   tags = {
-    Name = "${var.env}-mysql-cdc-task"
+
+    Name = "${var.app_name}-${var.env}-mysql-cdc-task"
   }
 }

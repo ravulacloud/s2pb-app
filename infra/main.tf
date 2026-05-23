@@ -1,57 +1,72 @@
 module "vpc" {
+
   source = "./modules/vpc"
 
-  name = local.vpc_name
+  app_name = local.app_name
 
-  project = var.project
-  env     = var.env
+  env = var.env
 
-  vpc_cidr        = var.vpc_cidr
-  public_subnets  = var.public_subnets
+  vpc_cidr = var.vpc_cidr
+
+  public_subnets = var.public_subnets
+
   private_subnets = var.private_subnets
 }
 
-# ✅ RDS FIRST
+############################################################
+# RDS
+############################################################
+
 module "rds" {
+
   source = "./modules/rds"
 
-  name                  = local.rds_name
-  db_name               = local.db_name
-  username              = var.db_username
-  password              = var.db_password
-  private_subnets       = module.vpc.private_subnets
-  vpc_id                = module.vpc.vpc_id
+  app_name = local.app_name
+
+  env = var.env
+
+  db_name = local.db_name
+
+  username = var.db_username
+
+  password = var.db_password
+
+  private_subnets = module.vpc.private_subnets
+
+  vpc_id = module.vpc.vpc_id
+
   dms_security_group_id = module.dms.dms_security_group_id
 }
 
-# ✅ BASTION AFTER RDS
+############################################################
+# EC2 BASTION
+############################################################
+
 module "ec2" {
 
   source = "./modules/ec2"
 
-  name = "bastion-${var.project}-${var.env}"
+  app_name = local.app_name
+
+  env = var.env
 
   ami = "ami-0f5ee92e2d63afc18"
 
   public_subnet_id = module.vpc.public_subnets[0]
 
-  project = var.project
-
-  env = var.env
-
   vpc_id = module.vpc.vpc_id
 
   key_name = var.key_name
 
-  #################################
-  # ADD THIS
-  #################################
+  ##########################################################
+  # IAM
+  ##########################################################
 
   instance_profile_name = module.iam.instance_profile_name
 
-  #################################
+  ##########################################################
   # RDS
-  #################################
+  ##########################################################
 
   rds_endpoint = module.rds.rds_endpoint
 
@@ -59,25 +74,43 @@ module "ec2" {
 
   db_password = var.db_password
 
-  db_name          = local.db_name
-  private_key_path = "${path.root}/bastion-key-new.pem"
+  db_name = local.db_name
+
+  ##########################################################
+  # SSH
+  ##########################################################
+
+  private_key_path = "${path.root}/ravula-key.pem"
 }
 
-# ✅ SG RULE AFTER BOTH MODULES
-resource "aws_security_group_rule" "bastion_to_rds" {
-  type      = "ingress"
-  from_port = 3306
-  to_port   = 3306
-  protocol  = "tcp"
+############################################################
+# SECURITY GROUP RULE
+############################################################
 
-  security_group_id        = module.rds.rds_sg_id
+resource "aws_security_group_rule" "bastion_to_rds" {
+
+  type = "ingress"
+
+  from_port = 3306
+
+  to_port = 3306
+
+  protocol = "tcp"
+
+  security_group_id = module.rds.rds_sg_id
+
   source_security_group_id = module.ec2.sg_id
 }
 
+############################################################
+# LAMBDA
+############################################################
 
 module "lambda" {
 
   source = "./modules/lambda"
+
+  app_name = local.app_name
 
   env = var.env
 
@@ -90,37 +123,80 @@ module "lambda" {
   hop_password = var.hop_password
 }
 
+############################################################
+# EVENTBRIDGE
+############################################################
+
 module "eventbridge" {
-  source      = "./modules/eventbridge"
-  lambda_arn  = module.lambda.lambda_arn
+
+  source = "./modules/eventbridge"
+
+  app_name = local.app_name
+
+  env = var.env
+
+  lambda_arn = module.lambda.lambda_arn
+
   lambda_name = module.lambda.lambda_name
 }
 
+############################################################
+# DMS
+############################################################
+
 module "dms" {
-  source                  = "./modules/dms"
-  env                     = var.env
-  mysql_host              = module.rds.rds_endpoint
-  mysql_user              = var.db_username
-  mysql_password          = var.db_password
-  mysql_database          = local.db_name
-  raw_db_name             = local.raw_db_name
-  dms_role_arn            = module.iam.dms_role_arn
+
+  source = "./modules/dms"
+
+  app_name = local.app_name
+
+  env = var.env
+
+  mysql_host = module.rds.rds_endpoint
+
+  mysql_user = var.db_username
+
+  mysql_password = var.db_password
+
+  mysql_database = local.db_name
+
+  raw_db_name = local.raw_db_name
+
+  dms_role_arn = module.iam.dms_role_arn
+
   dms_vpc_role_dependency = module.iam.dms_vpc_role_ready
-  security_group_id       = module.ec2.sg_id
-  private_subnets         = module.vpc.private_subnets
-  vpc_id                  = module.vpc.vpc_id
+
+  security_group_id = module.ec2.sg_id
+
+  private_subnets = module.vpc.private_subnets
+
+  vpc_id = module.vpc.vpc_id
 }
 
+############################################################
+# IAM
+############################################################
+
 module "iam" {
-  source    = "./modules/iam"
-  project   = var.project
-  env       = var.env
-  role_name = "${var.project}-${var.env}-role"
+
+  source = "./modules/iam"
+
+  app_name = local.app_name
+
+  env = var.env
+
+  role_name = "${local.app_name}-${var.env}-role"
 }
+
+############################################################
+# APACHE HOP
+############################################################
 
 module "hop" {
 
   source = "./modules/hop"
+
+  app_name = local.app_name
 
   ##########################################################
   # ENVIRONMENT
@@ -150,5 +226,5 @@ module "hop" {
   # ECR
   ##########################################################
 
-  ecr_repository_url = ".dkr.ecr.ap-south-1.amazonaws.com/glorytechsystems-platform-images"
+  ecr_repository_url = "986401823783.dkr.ecr.ap-south-1.amazonaws.com/glorytechsystems-platform-images"
 }

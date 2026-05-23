@@ -1,11 +1,24 @@
-variable "name" {}
-variable "vpc_cidr" {}
-variable "public_subnets" { type = list(string) }
-variable "private_subnets" { type = list(string) }
-variable "project" {
+variable "vpc_cidr" {
+
   type = string
 }
 
+variable "public_subnets" {
+
+  type = list(string)
+}
+
+variable "private_subnets" {
+
+  type = list(string)
+}
+
 variable "env" {
+
+  type = string
+}
+
+variable "app_name" {
+
   type = string
 }

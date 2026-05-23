@@ -25,3 +25,6 @@ variable "ecs_task_execution_role_arn" {
 variable "ecr_repository_url" {
   type = string
 }
+variable "app_name" {
+  type = string
+}

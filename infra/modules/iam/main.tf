@@ -4,7 +4,7 @@
 
 resource "aws_iam_role" "this" {
 
-  name = var.role_name
+  name = "${var.app_name}-${var.env}-role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -40,7 +40,7 @@ resource "aws_iam_instance_profile" "this" {
 
 resource "aws_iam_role" "lambda_role" {
 
-  name = "hop-trigger-lambda-role"
+  name = "${var.app_name}-${var.env}-lambda-role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -76,7 +76,7 @@ resource "aws_iam_role_policy_attachment" "lambda_basic" {
 
 resource "aws_iam_role" "dms_vpc_role" {
 
-  name = "dms-vpc-role"
+  name = "${var.app_name}-${var.env}-dms-vpc-role"
 
   force_detach_policies = true
 
@@ -114,7 +114,7 @@ resource "aws_iam_role_policy_attachment" "dms_vpc_attach" {
 
 resource "aws_iam_role" "dms_logs_role" {
 
-  name = "dms-cloudwatch-logs-role"
+  name = "${var.app_name}-${var.env}-dms-logs-role"
 
   force_detach_policies = true
 
@@ -152,7 +152,7 @@ resource "aws_iam_role_policy_attachment" "dms_logs_attach" {
 
 resource "aws_iam_role" "dms_role" {
 
-  name = "${var.project}-${var.env}-dms-role"
+  name = "${var.app_name}-${var.env}-dms-role"
 
   force_detach_policies = true
 
@@ -190,7 +190,7 @@ resource "aws_iam_role_policy_attachment" "dms_attach" {
 
 resource "aws_iam_role" "ecs_task_execution" {
 
-  name = "reward-loyalty-ecs-task-execution-role"
+  name = "${var.app_name}-ecs-task-execution-role"
 
   assume_role_policy = jsonencode({
 

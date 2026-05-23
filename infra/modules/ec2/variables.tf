@@ -1,62 +1,95 @@
-variable "name" {
-  description = "Name of the EC2 instance"
-  type        = string
-}
-
 variable "ami" {
+
   description = "AMI ID for EC2"
-  type        = string
+
+  type = string
 }
 
 variable "public_subnet_id" {
+
   description = "Public subnet where EC2 will be deployed"
-  type        = string
+
+  type = string
 }
 
 variable "key_name" {
+
   description = "EC2 key pair name"
-  type        = string
+
+  type = string
 }
 
 variable "vpc_id" {
-  description = "VPC ID for security group"
-  type        = string
-}
 
-variable "project" {
-  description = "Project name"
-  type        = string
+  description = "VPC ID for security group"
+
+  type = string
 }
 
 variable "env" {
+
   description = "Environment (dev/stage/prod)"
-  type        = string
+
+  type = string
 }
 
-# -------- DB VARIABLES --------
+#########################################
+# APP
+#########################################
+
+variable "app_name" {
+
+  type = string
+}
+
+#########################################
+# DATABASE
+#########################################
 
 variable "rds_endpoint" {
+
   description = "RDS endpoint"
-  type        = string
+
+  type = string
 }
 
 variable "db_username" {
+
   description = "Database username"
-  type        = string
+
+  type = string
 }
 
 variable "db_password" {
+
   description = "Database password"
-  type        = string
-  sensitive   = true
+
+  type = string
+
+  sensitive = true
 }
 
 variable "db_name" {
+
   description = "Database name"
-  type        = string
+
+  type = string
 }
 
-variable "instance_profile_name" {}
+#########################################
+# IAM
+#########################################
+
+variable "instance_profile_name" {
+
+  type = string
+}
+
+#########################################
+# SSH
+#########################################
+
 variable "private_key_path" {
+
   type = string
 }

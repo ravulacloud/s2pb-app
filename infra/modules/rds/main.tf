@@ -4,12 +4,17 @@
 
 resource "aws_db_subnet_group" "this" {
 
-  name = "${var.name}-subnet"
+  name = "${var.app_name}-${var.env}-rds-subnet"
 
   subnet_ids = var.private_subnets
 
   tags = {
-    Name = "${var.name}-subnet"
+
+    Name = "${var.app_name}-${var.env}-rds-subnet"
+
+    Project = var.app_name
+
+    Environment = var.env
   }
 }
 
@@ -19,7 +24,7 @@ resource "aws_db_subnet_group" "this" {
 
 resource "aws_security_group" "rds" {
 
-  name = "${var.name}-rds-sg"
+  name = "${var.app_name}-${var.env}-rds-sg"
 
   vpc_id = var.vpc_id
 
@@ -30,16 +35,17 @@ resource "aws_security_group" "rds" {
   egress {
 
     from_port = 0
-    to_port   = 0
+
+    to_port = 0
 
     protocol = "-1"
 
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags = {
-    Name = "${var.name}-rds-sg"
-  }
+  #################################
+  # INGRESS
+  #################################
 
   ingress {
 
@@ -55,6 +61,19 @@ resource "aws_security_group" "rds" {
       var.dms_security_group_id
     ]
   }
+
+  #################################
+  # TAGS
+  #################################
+
+  tags = {
+
+    Name = "${var.app_name}-${var.env}-rds-sg"
+
+    Project = var.app_name
+
+    Environment = var.env
+  }
 }
 
 #########################################
@@ -63,7 +82,7 @@ resource "aws_security_group" "rds" {
 
 resource "aws_db_parameter_group" "mysql_cdc_pg" {
 
-  name = "${var.name}-mysql-cdc-pg"
+  name = "${var.app_name}-${var.env}-mysql-cdc-pg"
 
   family = "mysql8.0"
 
@@ -74,21 +93,37 @@ resource "aws_db_parameter_group" "mysql_cdc_pg" {
   #################################
 
   parameter {
-    name  = "binlog_format"
+
+    name = "binlog_format"
+
     value = "ROW"
   }
 
   parameter {
-    name  = "binlog_row_image"
+
+    name = "binlog_row_image"
+
     value = "FULL"
   }
 
   parameter {
-    name  = "log_bin_trust_function_creators"
+
+    name = "log_bin_trust_function_creators"
+
     value = "1"
   }
+
+  #################################
+  # TAGS
+  #################################
+
   tags = {
-    Name = "${var.name}-mysql-cdc-pg"
+
+    Name = "${var.app_name}-${var.env}-mysql-cdc-pg"
+
+    Project = var.app_name
+
+    Environment = var.env
   }
 }
 
@@ -98,7 +133,7 @@ resource "aws_db_parameter_group" "mysql_cdc_pg" {
 
 resource "aws_db_instance" "mysql" {
 
-  identifier = var.name
+  identifier = "${var.app_name}-db-${var.env}"
 
   db_name = var.db_name
 
@@ -106,7 +141,8 @@ resource "aws_db_instance" "mysql" {
   # ENGINE
   #################################
 
-  engine         = "mysql"
+  engine = "mysql"
+
   engine_version = "8.0"
 
   instance_class = "db.t3.micro"
@@ -172,11 +208,22 @@ resource "aws_db_instance" "mysql" {
   #################################
 
   timeouts {
+
     create = "30m"
+
     delete = "30m"
   }
 
+  #################################
+  # TAGS
+  #################################
+
   tags = {
-    Name = var.name
+
+    Name = "${var.app_name}-db-${var.env}"
+
+    Project = var.app_name
+
+    Environment = var.env
   }
 }

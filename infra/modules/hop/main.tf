@@ -4,7 +4,7 @@
 
 resource "aws_cloudwatch_log_group" "hop" {
 
-  name = "/ecs/reward-loyalty-hop-${var.env}"
+  name = "/ecs/${var.app_name}-hop-${var.env}"
 
   retention_in_days = 7
 }
@@ -15,7 +15,7 @@ resource "aws_cloudwatch_log_group" "hop" {
 
 resource "aws_ecs_cluster" "hop" {
 
-  name = "reward-loyalty-ecs-${var.env}"
+  name = "${var.app_name}-ecs-${var.env}"
 }
 
 ############################################################
@@ -24,7 +24,7 @@ resource "aws_ecs_cluster" "hop" {
 
 resource "aws_security_group" "hop_ecs" {
 
-  name = "reward-loyalty-hop-ecs-sg-${var.env}"
+  name = "${var.app_name}-hop-ecs-sg-${var.env}"
 
   vpc_id = var.vpc_id
 
@@ -67,7 +67,7 @@ resource "aws_security_group" "hop_ecs" {
 
 resource "aws_security_group" "hop_alb" {
 
-  name = "reward-loyalty-hop-alb-sg-${var.env}"
+  name = "${var.app_name}-hop-alb-sg-${var.env}"
 
   vpc_id = var.vpc_id
 
@@ -108,7 +108,7 @@ resource "aws_security_group" "hop_alb" {
 
 resource "aws_lb" "hop" {
 
-  name = "reward-loyalty-hop-alb-${var.env}"
+  name = "${var.app_name}-hop-alb-${var.env}"
 
   internal = false
 
@@ -127,7 +127,7 @@ resource "aws_lb" "hop" {
 
 resource "aws_lb_target_group" "hop" {
 
-  name_prefix = "hop-"
+  name = "${var.app_name}-hop-tg-${var.env}"
 
   port = 8080
 
@@ -192,7 +192,7 @@ resource "aws_lb_listener" "hop" {
 
 resource "aws_ecs_task_definition" "hop" {
 
-  family = "reward-loyalty-hop-${var.env}"
+  family = "${var.app_name}-hop-${var.env}"
 
   network_mode = "awsvpc"
 
@@ -208,9 +208,9 @@ resource "aws_ecs_task_definition" "hop" {
 
     {
 
-      name = "reward-loyalty-hop"
+      name = "${var.app_name}-hop"
 
-      image = "${var.ecr_repository_url}:reward-loyalty-${var.env}"
+      image = "${var.ecr_repository_url}:${var.app_name}-${var.env}"
 
       essential = true
 
@@ -253,7 +253,7 @@ resource "aws_ecs_task_definition" "hop" {
 
 resource "aws_ecs_service" "hop" {
 
-  name = "reward-loyalty-hop-service-${var.env}"
+  name = "${var.app_name}-hop-service-${var.env}"
 
   cluster = aws_ecs_cluster.hop.id
 
@@ -282,7 +282,7 @@ resource "aws_ecs_service" "hop" {
 
     target_group_arn = aws_lb_target_group.hop.arn
 
-    container_name = "reward-loyalty-hop"
+    container_name = "${var.app_name}-hop"
 
     container_port = 8080
   }
