@@ -181,7 +181,7 @@ resource "aws_db_instance" "mysql" {
   # BACKUP
   #################################
 
-  backup_retention_period = 7
+  backup_retention_period = 1
 
   delete_automated_backups = false
 

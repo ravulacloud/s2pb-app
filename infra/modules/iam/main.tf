@@ -76,7 +76,7 @@ resource "aws_iam_role_policy_attachment" "lambda_basic" {
 
 resource "aws_iam_role" "dms_vpc_role" {
 
-  name = "${var.app_name}-${var.env}-dms-vpc-role"
+  name = "dms-vpc-role"
 
   force_detach_policies = true
 
@@ -114,7 +114,7 @@ resource "aws_iam_role_policy_attachment" "dms_vpc_attach" {
 
 resource "aws_iam_role" "dms_logs_role" {
 
-  name = "${var.app_name}-${var.env}-dms-logs-role"
+  name = "dms-logs-role"
 
   force_detach_policies = true
 
