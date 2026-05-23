@@ -36,73 +36,76 @@ resource "aws_lb_target_group" "airflow" {
 #########################################
 # ECS TASK DEFINITION
 #########################################
-
 resource "aws_ecs_task_definition" "airflow" {
 
-  family = "${var.app_name}-airflow-${var.env}"
-
-  network_mode = "awsvpc"
-
+  family                   = "${var.app_name}-airflow-${var.env}"
+  network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
 
-  cpu = 512
-
+  cpu    = 512
   memory = 1024
 
   execution_role_arn = var.ecs_task_execution_role_arn
 
   container_definitions = jsonencode([
-
     {
 
-      name = "${var.app_name}-airflow"
+      name  = "${var.app_name}-airflow"
 
       image = "${var.ecr_repository_url}:s2pb-app-airflow-${var.env}"
 
       essential = true
 
+      command = [
+        "bash",
+        "-c",
+        "airflow db migrate && airflow webserver"
+      ]
+
       portMappings = [
-
         {
-
           containerPort = 8080
-
-          hostPort = 8080
-
-          protocol = "tcp"
+          hostPort      = 8080
+          protocol      = "tcp"
         }
       ]
+
       environment = [
 
         {
-          name = "AIRFLOW__CORE__LOAD_EXAMPLES"
-
+          name  = "AIRFLOW__CORE__LOAD_EXAMPLES"
           value = "False"
         },
 
         {
-          name = "_AIRFLOW_WWW_USER_USERNAME"
-
+          name  = "_AIRFLOW_WWW_USER_USERNAME"
           value = "admin"
         },
 
         {
-          name = "_AIRFLOW_WWW_USER_PASSWORD"
-
+          name  = "_AIRFLOW_WWW_USER_PASSWORD"
           value = "admin"
+        },
+
+        {
+          name  = "AIRFLOW__WEBSERVER__WEB_SERVER_HOST"
+          value = "0.0.0.0"
+        },
+
+        {
+          name  = "AIRFLOW__WEBSERVER__WEB_SERVER_PORT"
+          value = "8080"
         }
-     
       ]
+
       logConfiguration = {
 
         logDriver = "awslogs"
 
         options = {
 
-          awslogs-group = aws_cloudwatch_log_group.airflow.name
-
-          awslogs-region = var.aws_region
-
+          awslogs-group         = aws_cloudwatch_log_group.airflow.name
+          awslogs-region        = var.aws_region
           awslogs-stream-prefix = "ecs"
         }
       }
