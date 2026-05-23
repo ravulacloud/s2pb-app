@@ -50,22 +50,7 @@ COPY plugins /opt/airflow/plugins
 EXPOSE 8080
 
 ##########################################################
-# REMOVE DEFAULT ENTRYPOINT
-##########################################################
-
-ENTRYPOINT []
-
-##########################################################
 # START AIRFLOW
 ##########################################################
 
-CMD ["bash", "-c", "\
-airflow db migrate && \
-(airflow users create \
---username admin \
---password admin \
---firstname Airflow \
---lastname Admin \
---role Admin \
---email admin@example.com || true) && \
-airflow standalone"]
+CMD ["standalone"]
