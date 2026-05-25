@@ -22,14 +22,14 @@ resource "aws_lb_target_group" "airflow" {
   vpc_id      = var.vpc_id
   health_check {
 
-    path    = "/health"
+    path    = "/login"
     matcher = "200"
 
-    interval = 60
-    timeout  = 30
+    interval = 120
+    timeout  = 60
 
     healthy_threshold   = 2
-    unhealthy_threshold = 3
+    unhealthy_threshold = 10
   }
 }
 
@@ -152,7 +152,7 @@ resource "aws_ecs_service" "airflow" {
   desired_count = 1
   launch_type   = "FARGATE"
 
-  health_check_grace_period_seconds = 300
+  health_check_grace_period_seconds = 600
 
   network_configuration {
 
