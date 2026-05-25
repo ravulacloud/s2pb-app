@@ -33,9 +33,11 @@ resource "aws_lb_target_group" "airflow" {
     unhealthy_threshold = 5
   }
 }
+
 #########################################
 # ECS TASK DEFINITION
 #########################################
+
 resource "aws_ecs_task_definition" "airflow" {
 
   family                   = "${var.app_name}-airflow-${var.env}"
@@ -56,11 +58,9 @@ resource "aws_ecs_task_definition" "airflow" {
 
       essential = true
 
-      command = [
-        "bash",
-        "-c",
-        "airflow db migrate && airflow webserver"
-      ]
+      ######################################################
+      # PORT
+      ######################################################
 
       portMappings = [
         {
@@ -69,6 +69,10 @@ resource "aws_ecs_task_definition" "airflow" {
           protocol      = "tcp"
         }
       ]
+
+      ######################################################
+      # ENVIRONMENT VARIABLES
+      ######################################################
 
       environment = [
 
@@ -98,12 +102,12 @@ resource "aws_ecs_task_definition" "airflow" {
         },
 
         ######################################################
-        # REQUIRED FOR ALB PATH-BASED ROUTING
+        # REQUIRED FOR PATH-BASED ROUTING
         ######################################################
 
         {
           name  = "AIRFLOW__WEBSERVER__BASE_URL"
-          value = "http://${var.alb_dns_name}/airflow"
+          value = "http://${var.alb_dns_name}/airflow/"
         },
 
         {
@@ -116,6 +120,11 @@ resource "aws_ecs_task_definition" "airflow" {
           value = "/airflow"
         }
       ]
+
+      ######################################################
+      # CLOUDWATCH LOGS
+      ######################################################
+
       logConfiguration = {
 
         logDriver = "awslogs"
@@ -134,13 +143,15 @@ resource "aws_ecs_task_definition" "airflow" {
 #########################################
 # ECS SERVICE
 #########################################
+
 resource "aws_ecs_service" "airflow" {
 
   name            = "${var.app_name}-airflow-service-${var.env}"
   cluster         = var.ecs_cluster_id
   task_definition = aws_ecs_task_definition.airflow.arn
-  desired_count   = 1
-  launch_type     = "FARGATE"
+
+  desired_count = 1
+  launch_type   = "FARGATE"
 
   health_check_grace_period_seconds = 300
 
@@ -169,6 +180,42 @@ resource "aws_ecs_service" "airflow" {
   ]
 }
 
+#########################################
+# REDIRECT /airflow -> /airflow/
+#########################################
+
+resource "aws_lb_listener_rule" "airflow_redirect" {
+
+  listener_arn = var.alb_listener_arn
+
+  priority = 199
+
+  action {
+
+    type = "redirect"
+
+    redirect {
+
+      path        = "/airflow/"
+      port        = "80"
+      protocol    = "HTTP"
+      status_code = "HTTP_301"
+    }
+  }
+
+  condition {
+
+    path_pattern {
+
+      values = ["/airflow"]
+    }
+  }
+}
+
+#########################################
+# FORWARD /airflow/*
+#########################################
+
 resource "aws_lb_listener_rule" "airflow" {
 
   listener_arn = var.alb_listener_arn
@@ -186,7 +233,7 @@ resource "aws_lb_listener_rule" "airflow" {
 
     path_pattern {
 
-      values = ["/airflow*"]
+      values = ["/airflow/*"]
     }
   }
 }
