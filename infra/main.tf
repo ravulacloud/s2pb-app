@@ -254,4 +254,6 @@ module "airflow" {
   alb_listener_arn = module.hop.alb_listener_arn
 
   alb_dns_name = module.hop.alb_dns
+
+  alb_security_group_id = module.hop.alb_sg_id
 }

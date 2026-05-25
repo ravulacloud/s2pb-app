@@ -52,3 +52,7 @@ variable "alb_dns_name" {
 
   type = string
 }
+variable "alb_security_group_id" {
+
+  type = string
+}
