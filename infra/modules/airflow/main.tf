@@ -10,50 +10,6 @@ resource "aws_cloudwatch_log_group" "airflow" {
 }
 
 #########################################
-# AIRFLOW SECURITY GROUP
-#########################################
-
-resource "aws_security_group" "airflow_sg" {
-
-  name = "${var.app_name}-airflow-sg-${var.env}"
-
-  vpc_id = var.vpc_id
-
-  #################################
-  # INBOUND
-  #################################
-
-  ingress {
-
-    from_port = 8080
-    to_port   = 8080
-
-    protocol = "tcp"
-
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  #################################
-  # OUTBOUND
-  #################################
-
-  egress {
-
-    from_port = 0
-    to_port   = 0
-
-    protocol = "-1"
-
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = {
-
-    Name = "${var.app_name}-airflow-sg-${var.env}"
-  }
-}
-
-#########################################
 # ALB TARGET GROUP
 #########################################
 
@@ -64,6 +20,7 @@ resource "aws_lb_target_group" "airflow" {
   protocol    = "HTTP"
   target_type = "ip"
   vpc_id      = var.vpc_id
+
   health_check {
 
     path    = "/login"
@@ -101,10 +58,6 @@ resource "aws_ecs_task_definition" "airflow" {
 
       essential = true
 
-      ######################################################
-      # PORT
-      ######################################################
-
       portMappings = [
         {
           containerPort = 8080
@@ -112,10 +65,6 @@ resource "aws_ecs_task_definition" "airflow" {
           protocol      = "tcp"
         }
       ]
-
-      ######################################################
-      # ENVIRONMENT VARIABLES
-      ######################################################
 
       environment = [
 
@@ -144,10 +93,6 @@ resource "aws_ecs_task_definition" "airflow" {
           value = "8080"
         },
 
-        ######################################################
-        # REQUIRED FOR PATH-BASED ROUTING
-        ######################################################
-
         {
           name  = "AIRFLOW__WEBSERVER__BASE_URL"
           value = "http://${var.alb_dns_name}/airflow/"
@@ -163,10 +108,6 @@ resource "aws_ecs_task_definition" "airflow" {
           value = "/airflow"
         }
       ]
-
-      ######################################################
-      # CLOUDWATCH LOGS
-      ######################################################
 
       logConfiguration = {
 
