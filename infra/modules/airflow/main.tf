@@ -20,10 +20,9 @@ resource "aws_lb_target_group" "airflow" {
   protocol    = "HTTP"
   target_type = "ip"
   vpc_id      = var.vpc_id
-
   health_check {
 
-    path    = "/health"
+    path    = "/airflow/health"
     matcher = "200"
 
     interval = 60
