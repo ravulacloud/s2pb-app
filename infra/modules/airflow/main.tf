@@ -22,14 +22,14 @@ resource "aws_lb_target_group" "airflow" {
   vpc_id      = var.vpc_id
   health_check {
 
-    path    = "/airflow/health"
+    path    = "/health"
     matcher = "200"
 
     interval = 60
     timeout  = 30
 
     healthy_threshold   = 2
-    unhealthy_threshold = 5
+    unhealthy_threshold = 3
   }
 }
 
