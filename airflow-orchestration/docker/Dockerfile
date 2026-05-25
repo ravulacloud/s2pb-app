@@ -7,7 +7,7 @@ FROM apache/airflow:2.10.0
 USER root
 
 ##########################################################
-# INSTALL SYSTEM PACKAGES
+# INSTALL PACKAGES
 ##########################################################
 
 RUN apt-get update && \
@@ -24,7 +24,7 @@ RUN apt-get update && \
 USER airflow
 
 ##########################################################
-# PYTHON REQUIREMENTS
+# REQUIREMENTS
 ##########################################################
 
 COPY requirements.txt /requirements.txt
@@ -53,4 +53,14 @@ EXPOSE 8080
 # START AIRFLOW
 ##########################################################
 
-CMD ["airflow", "standalone"]
+CMD ["bash", "-c", "\
+airflow db migrate && \
+(airflow users create \
+--username admin \
+--password admin \
+--firstname Airflow \
+--lastname Admin \
+--role Admin \
+--email admin@example.com || true) && \
+airflow scheduler & \
+exec airflow webserver"]
