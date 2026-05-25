@@ -10,6 +10,50 @@ resource "aws_cloudwatch_log_group" "airflow" {
 }
 
 #########################################
+# AIRFLOW SECURITY GROUP
+#########################################
+
+resource "aws_security_group" "airflow_sg" {
+
+  name = "${var.app_name}-airflow-sg-${var.env}"
+
+  vpc_id = var.vpc_id
+
+  #################################
+  # INBOUND
+  #################################
+
+  ingress {
+
+    from_port = 8080
+    to_port   = 8080
+
+    protocol = "tcp"
+
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  #################################
+  # OUTBOUND
+  #################################
+
+  egress {
+
+    from_port = 0
+    to_port   = 0
+
+    protocol = "-1"
+
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+
+    Name = "${var.app_name}-airflow-sg-${var.env}"
+  }
+}
+
+#########################################
 # ALB TARGET GROUP
 #########################################
 
