@@ -23,13 +23,16 @@ resource "aws_lb_target_group" "airflow" {
 
   health_check {
 
-    path    = "/login"
-    matcher = "200"
+    path = "/health"
+
+    matcher = "200-399"
 
     interval = 120
-    timeout  = 60
 
-    healthy_threshold   = 2
+    timeout = 60
+
+    healthy_threshold = 2
+
     unhealthy_threshold = 10
   }
 }
