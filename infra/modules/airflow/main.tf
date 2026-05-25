@@ -50,7 +50,7 @@ resource "aws_ecs_task_definition" "airflow" {
   container_definitions = jsonencode([
     {
 
-      name  = "${var.app_name}-airflow"
+      name = "${var.app_name}-airflow"
 
       image = "${var.ecr_repository_url}:s2pb-app-airflow-${var.env}"
 
@@ -95,9 +95,27 @@ resource "aws_ecs_task_definition" "airflow" {
         {
           name  = "AIRFLOW__WEBSERVER__WEB_SERVER_PORT"
           value = "8080"
+        },
+
+        ######################################################
+        # REQUIRED FOR ALB PATH-BASED ROUTING
+        ######################################################
+
+        {
+          name  = "AIRFLOW__WEBSERVER__BASE_URL"
+          value = "http://${var.alb_dns_name}/airflow"
+        },
+
+        {
+          name  = "AIRFLOW__WEBSERVER__ENABLE_PROXY_FIX"
+          value = "True"
+        },
+
+        {
+          name  = "AIRFLOW__WEBSERVER__WEB_SERVER_URL_PREFIX"
+          value = "/airflow"
         }
       ]
-
       logConfiguration = {
 
         logDriver = "awslogs"
