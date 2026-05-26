@@ -69,21 +69,22 @@ resource "aws_ecs_task_definition" "airflow" {
         }
       ]
 
+      healthCheck = {
+        command = [
+          "CMD-SHELL",
+          "curl -f http://localhost:8080/health || exit 1"
+        ]
+        interval    = 30
+        timeout     = 10
+        retries     = 5
+        startPeriod = 120
+      }
+
       environment = [
 
         {
           name  = "AIRFLOW__CORE__LOAD_EXAMPLES"
           value = "False"
-        },
-
-        {
-          name  = "_AIRFLOW_WWW_USER_USERNAME"
-          value = "admin"
-        },
-
-        {
-          name  = "_AIRFLOW_WWW_USER_PASSWORD"
-          value = "admin"
         },
 
         {
