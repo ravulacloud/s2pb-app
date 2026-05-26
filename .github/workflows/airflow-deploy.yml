@@ -16,8 +16,11 @@ on:
 
       environment:
         description: "Select environment"
+
         required: true
+
         default: dev
+
         type: choice
 
         options:
@@ -26,7 +29,9 @@ on:
           - prod
 
 permissions:
+
   id-token: write
+
   contents: read
 
 jobs:
@@ -39,19 +44,35 @@ jobs:
 
     env:
 
+      #######################################################
+      # AWS
+      #######################################################
+
       AWS_REGION: ap-south-1
 
       AWS_ACCOUNT_ID: 986401823783
+
+      #######################################################
+      # APPLICATION
+      #######################################################
 
       APP_NAME: s2pb-app
 
       ENVIRONMENT: ${{ github.event.inputs.environment || 'dev' }}
 
+      #######################################################
+      # ECR
+      #######################################################
+
       ECR_REPOSITORY: glorytechsystems-platform-images
 
-      IMAGE_TAG: s2pb-app-airflow-${{ github.event.inputs.environment || 'dev' }}
+      IMAGE_TAG: ${{ github.sha }}
 
-      IMAGE_URI: 986401823783.dkr.ecr.ap-south-1.amazonaws.com/glorytechsystems-platform-images:s2pb-app-airflow-${{ github.event.inputs.environment || 'dev' }}
+      IMAGE_URI: 986401823783.dkr.ecr.ap-south-1.amazonaws.com/glorytechsystems-platform-images:${{ github.sha }}
+
+      #######################################################
+      # ECS
+      #######################################################
 
       ECS_CLUSTER_NAME: s2pb-app-ecs-${{ github.event.inputs.environment || 'dev' }}
 
@@ -98,8 +119,7 @@ jobs:
         run: |
 
           docker build \
-            --no-cache \
-            -t s2pb-app-airflow \
+            -t s2pb-app-airflow:${IMAGE_TAG} \
             -f airflow-orchestration/docker/Dockerfile \
             ./airflow-orchestration
 
@@ -111,7 +131,9 @@ jobs:
 
         run: |
 
-          docker tag s2pb-app-airflow:latest $IMAGE_URI
+          docker tag \
+            s2pb-app-airflow:${IMAGE_TAG} \
+            ${IMAGE_URI}
 
       #######################################################
       # PUSH IMAGE TO ECR
@@ -121,7 +143,7 @@ jobs:
 
         run: |
 
-          docker push $IMAGE_URI
+          docker push ${IMAGE_URI}
 
       #######################################################
       # FORCE ECS DEPLOYMENT
@@ -132,10 +154,23 @@ jobs:
         run: |
 
           aws ecs update-service \
-            --cluster $ECS_CLUSTER_NAME \
-            --service $ECS_SERVICE_NAME \
+            --cluster ${ECS_CLUSTER_NAME} \
+            --service ${ECS_SERVICE_NAME} \
             --force-new-deployment \
-            --region $AWS_REGION
+            --region ${AWS_REGION}
+
+      #######################################################
+      # WAIT FOR ECS STABILITY
+      #######################################################
+
+      - name: Wait for ECS Stability
+
+        run: |
+
+          aws ecs wait services-stable \
+            --cluster ${ECS_CLUSTER_NAME} \
+            --services ${ECS_SERVICE_NAME} \
+            --region ${AWS_REGION}
 
       #######################################################
       # DISPLAY SUCCESS
@@ -151,24 +186,28 @@ jobs:
 
           echo "======================================="
 
-          echo "Environment: $ENVIRONMENT"
+          echo "Environment: ${ENVIRONMENT}"
 
           echo ""
 
           echo "Image URI:"
 
-          echo "$IMAGE_URI"
+          echo "${IMAGE_URI}"
 
           echo ""
 
           echo "ECS Cluster:"
 
-          echo "$ECS_CLUSTER_NAME"
+          echo "${ECS_CLUSTER_NAME}"
 
           echo ""
 
           echo "ECS Service:"
 
-          echo "$ECS_SERVICE_NAME"
+          echo "${ECS_SERVICE_NAME}"
+
+          echo ""
+
+          echo "Deployment completed successfully"
 
           echo "======================================="
