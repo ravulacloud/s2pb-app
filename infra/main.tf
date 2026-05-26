@@ -36,6 +36,10 @@ module "rds" {
   vpc_id = module.vpc.vpc_id
 
   dms_security_group_id = module.dms.dms_security_group_id
+
+  airflow_security_group_id = module.airflow.airflow_security_group_id
+
+  bastion_security_group_id = module.ec2.security_group_id
 }
 
 ############################################################

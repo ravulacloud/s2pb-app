@@ -20,3 +20,6 @@ variable "env" {
 
   type = string
 }
+variable "airflow_security_group_id" {}
+
+variable "bastion_security_group_id" {}
