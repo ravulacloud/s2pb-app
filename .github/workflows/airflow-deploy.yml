@@ -66,10 +66,9 @@ jobs:
 
       ECR_REPOSITORY: glorytechsystems-platform-images
 
-      IMAGE_TAG: ${{ github.sha }}
+      IMAGE_TAG: s2pb-app-airflow-${{ github.event.inputs.environment || 'dev' }}
 
-      IMAGE_URI: 986401823783.dkr.ecr.ap-south-1.amazonaws.com/glorytechsystems-platform-images:${{ github.sha }}
-
+      IMAGE_URI: 986401823783.dkr.ecr.ap-south-1.amazonaws.com/glorytechsystems-platform-images:s2pb-app-airflow-${{ github.event.inputs.environment || 'dev' }}
       #######################################################
       # ECS
       #######################################################
