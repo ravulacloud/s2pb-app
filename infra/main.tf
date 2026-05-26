@@ -103,7 +103,7 @@ resource "aws_security_group_rule" "bastion_to_rds" {
 
   security_group_id = module.rds.rds_sg_id
 
-  source_security_group_id = module.ec2.sg_id
+  source_security_group_id = module.ec2.security_group_id
 }
 
 ############################################################
@@ -170,7 +170,7 @@ module "dms" {
 
   dms_vpc_role_dependency = module.iam.dms_vpc_role_ready
 
-  security_group_id = module.ec2.sg_id
+  security_group_id = module.ec2.security_group_id
 
   private_subnets = module.vpc.private_subnets
 
