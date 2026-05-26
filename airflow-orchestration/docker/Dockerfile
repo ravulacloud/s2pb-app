@@ -44,6 +44,14 @@ COPY dags /opt/airflow/dags
 COPY plugins /opt/airflow/plugins
 
 ##########################################################
+# ENVIRONMENT
+##########################################################
+
+ENV AIRFLOW__WEBSERVER__WEB_SERVER_HOST=0.0.0.0
+
+ENV AIRFLOW__WEBSERVER__WEB_SERVER_PORT=8080
+
+##########################################################
 # PORT
 ##########################################################
 
@@ -53,14 +61,4 @@ EXPOSE 8080
 # START AIRFLOW
 ##########################################################
 
-CMD ["bash", "-c", "\
-airflow db migrate && \
-(airflow users create \
---username admin \
---password admin \
---firstname Airflow \
---lastname Admin \
---role Admin \
---email admin@example.com || true) && \
-airflow scheduler & \
-exec airflow webserver"]
+CMD ["airflow", "standalone"]
