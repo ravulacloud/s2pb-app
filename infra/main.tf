@@ -86,26 +86,6 @@ module "ec2" {
 
   private_key_path = "${path.root}/ravula-key.pem"
 }
-
-############################################################
-# SECURITY GROUP RULE
-############################################################
-
-resource "aws_security_group_rule" "bastion_to_rds" {
-
-  type = "ingress"
-
-  from_port = 3306
-
-  to_port = 3306
-
-  protocol = "tcp"
-
-  security_group_id = module.rds.rds_sg_id
-
-  source_security_group_id = module.ec2.security_group_id
-}
-
 ############################################################
 # LAMBDA
 ############################################################
