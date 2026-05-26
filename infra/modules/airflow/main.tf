@@ -215,7 +215,7 @@ resource "aws_lb_listener_rule" "airflow" {
 
     path_pattern {
 
-      values = ["/airflow/*"]
+      values = ["/*"]
     }
   }
 }
