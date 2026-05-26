@@ -14,8 +14,10 @@ RUN apt-get update && \
     apt-get install -y \
     gcc \
     g++ \
-    default-libmysqlclient-dev && \
-    apt-get clean
+    default-libmysqlclient-dev \
+    curl && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 ##########################################################
 # AIRFLOW USER
@@ -51,6 +53,8 @@ ENV AIRFLOW__WEBSERVER__WEB_SERVER_HOST=0.0.0.0
 
 ENV AIRFLOW__WEBSERVER__WEB_SERVER_PORT=8080
 
+ENV AIRFLOW__CORE__LOAD_EXAMPLES=False
+
 ##########################################################
 # PORT
 ##########################################################
@@ -61,4 +65,15 @@ EXPOSE 8080
 # START AIRFLOW
 ##########################################################
 
-CMD ["airflow", "standalone"]
+CMD ["bash", "-c", "\
+airflow db init && \
+(airflow users create \
+  --username ravula \
+  --password ravula \
+  --firstname Airflow \
+  --lastname Admin \
+  --role Admin \
+  --email ravulapbi@gmail.com || true) && \
+airflow scheduler & \
+sleep 20 && \
+exec airflow webserver"]

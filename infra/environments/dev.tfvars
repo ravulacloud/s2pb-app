@@ -26,9 +26,9 @@ private_subnets = [
 # DATABASE
 #########################################
 
-db_username = "admin"
+db_username = "ravula"
 
-db_password = "StrongPassword123!"
+db_password = "password"
 
 db_name = "rldb"
 
@@ -42,6 +42,6 @@ key_name = "ravula-key"
 # APACHE HOP
 #########################################
 
-hop_username = "admin"
+hop_username = "ravula"
 
 hop_password = "password"
