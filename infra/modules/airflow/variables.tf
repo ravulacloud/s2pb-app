@@ -56,3 +56,11 @@ variable "alb_security_group_id" {
 
   type = string
 }
+variable "db_username" {}
+
+variable "db_password" {
+
+  sensitive = true
+}
+
+variable "rds_endpoint" {}

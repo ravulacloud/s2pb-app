@@ -256,4 +256,9 @@ module "airflow" {
   alb_dns_name = module.hop.alb_dns
 
   alb_security_group_id = module.hop.alb_sg_id
+  db_username           = var.db_username
+
+  db_password = var.db_password
+
+  rds_endpoint = module.rds.rds_endpoint
 }

@@ -20,7 +20,14 @@ VALUES
 (1002, 502, 'Loan Offer', 'LOAN', 10000.00, 'ACTIVE', NOW(), DATE_ADD(NOW(), INTERVAL 30 DAY)),
 (1001, 501, 'Shopping Discount', 'DISCOUNT', 200.00, 'EXPIRED', NOW(), DATE_SUB(NOW(), INTERVAL 1 DAY));
 
-
 CREATE DATABASE IF NOT EXISTS rldb_raw_dev;
+
 CREATE DATABASE IF NOT EXISTS rldb_replicated_dev;
+
 CREATE DATABASE IF NOT EXISTS rldb_unified_dev;
+
+############################################################
+# AIRFLOW DATABASE
+############################################################
+
+CREATE DATABASE IF NOT EXISTS airflow;

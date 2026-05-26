@@ -61,6 +61,10 @@ resource "aws_ecs_task_definition" "airflow" {
 
       essential = true
 
+      ######################################################
+      # PORTS
+      ######################################################
+
       portMappings = [
         {
           containerPort = 8080
@@ -69,23 +73,55 @@ resource "aws_ecs_task_definition" "airflow" {
         }
       ]
 
+      ######################################################
+      # ECS CONTAINER HEALTH CHECK
+      ######################################################
+
       healthCheck = {
+
         command = [
           "CMD-SHELL",
           "curl -f http://localhost:8080/health || exit 1"
         ]
+
         interval    = 30
         timeout     = 10
         retries     = 5
         startPeriod = 120
       }
 
+      ######################################################
+      # ENVIRONMENT VARIABLES
+      ######################################################
+
       environment = [
+
+        ####################################################
+        # AIRFLOW CORE
+        ####################################################
 
         {
           name  = "AIRFLOW__CORE__LOAD_EXAMPLES"
           value = "False"
         },
+
+        {
+          name  = "AIRFLOW__CORE__EXECUTOR"
+          value = "LocalExecutor"
+        },
+
+        ####################################################
+        # MYSQL METADATA DATABASE
+        ####################################################
+
+        {
+          name  = "AIRFLOW__DATABASE__SQL_ALCHEMY_CONN"
+          value = "mysql+mysqldb://${var.db_username}:${var.db_password}@${var.rds_endpoint}:3306/airflow"
+        },
+
+        ####################################################
+        # AIRFLOW WEBSERVER
+        ####################################################
 
         {
           name  = "AIRFLOW__WEBSERVER__WEB_SERVER_HOST"
@@ -97,6 +133,10 @@ resource "aws_ecs_task_definition" "airflow" {
           value = "8080"
         },
 
+        ####################################################
+        # ALB + PROXY
+        ####################################################
+
         {
           name  = "AIRFLOW__WEBSERVER__BASE_URL"
           value = "http://${var.alb_dns_name}"
@@ -107,6 +147,10 @@ resource "aws_ecs_task_definition" "airflow" {
           value = "True"
         }
       ]
+
+      ######################################################
+      # CLOUDWATCH LOGS
+      ######################################################
 
       logConfiguration = {
 
