@@ -66,7 +66,7 @@ EXPOSE 8080
 ##########################################################
 
 CMD ["bash", "-c", "\
-airflow db init && \
+airflow db migrate && \
 (airflow users create \
   --username ravula \
   --password ravula \
@@ -74,6 +74,6 @@ airflow db init && \
   --lastname Admin \
   --role Admin \
   --email ravulapbi@gmail.com || true) && \
-airflow scheduler & \
-sleep 20 && \
+airflow scheduler > /opt/airflow/logs/scheduler.log 2>&1 & \
+sleep 60 && \
 exec airflow webserver"]
