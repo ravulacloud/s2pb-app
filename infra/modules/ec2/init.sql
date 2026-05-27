@@ -24,10 +24,10 @@ CREATE DATABASE IF NOT EXISTS rldb_raw_dev;
 
 CREATE DATABASE IF NOT EXISTS rldb_replicated_dev;
 
-CREATE DATABASE IF NOT EXISTS rldb_unified_dev;
+CREATE DATABASE IF NOT EXISTS rldb_unified_dev; 
 
-############################################################
-# AIRFLOW DATABASE
-############################################################
-
+# AIRFLOW DATABASE 
 CREATE DATABASE IF NOT EXISTS airflow;
+
+# HOP Database
+CREATE DATABASE IF NOT EXISTS hop;
