@@ -21,6 +21,10 @@ The platform is designed for hybrid cloud environments where on-premises MySQL d
 
 # Architecture
 
+## Diagram
+![System Architecture Diagram](./assets/ARCHITECTURE.png)
+
+
 ## High-Level Flow
 
 On-Premises MySQL
