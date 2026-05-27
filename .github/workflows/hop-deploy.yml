@@ -2,6 +2,10 @@ name: Hop-Deploy
 
 on:
 
+  #######################################################
+  # AUTO DEPLOY ON MAIN BRANCH
+  #######################################################
+
   push:
 
     branches:
@@ -9,6 +13,10 @@ on:
 
     paths:
       - 'hop-orchestration/**'
+
+  #######################################################
+  # MANUAL DEPLOYMENT
+  #######################################################
 
   workflow_dispatch:
 
@@ -28,19 +36,33 @@ on:
           - staging
           - prod
 
+#######################################################
+# GITHUB ACTIONS PERMISSIONS
+#######################################################
+
 permissions:
 
   id-token: write
 
   contents: read
 
+#######################################################
+# JOBS
+#######################################################
+
 jobs:
 
   hop-deploy:
 
+    name: Apache Hop ECS Deployment
+
     runs-on: ubuntu-latest
 
     timeout-minutes: 60
+
+    #######################################################
+    # ENVIRONMENT VARIABLES
+    #######################################################
 
     env:
 
@@ -66,9 +88,9 @@ jobs:
 
       ECR_REPOSITORY: glorytechsystems-platform-images
 
-      IMAGE_TAG: s2pb-app-hop-${{ github.event.inputs.environment || 'dev' }}
+      IMAGE_TAG: s2pb-app-${{ github.event.inputs.environment || 'dev' }}
 
-      IMAGE_URI: 986401823783.dkr.ecr.ap-south-1.amazonaws.com/glorytechsystems-platform-images:s2pb-app-hop-${{ github.event.inputs.environment || 'dev' }}
+      IMAGE_URI: 986401823783.dkr.ecr.ap-south-1.amazonaws.com/glorytechsystems-platform-images:s2pb-app-${{ github.event.inputs.environment || 'dev' }}
 
       #######################################################
       # ECS
@@ -78,10 +100,14 @@ jobs:
 
       ECS_SERVICE_NAME: s2pb-app-hop-service-${{ github.event.inputs.environment || 'dev' }}
 
+    #######################################################
+    # STEPS
+    #######################################################
+
     steps:
 
       #######################################################
-      # CHECKOUT
+      # CHECKOUT SOURCE CODE
       #######################################################
 
       - name: Checkout Repository
@@ -89,7 +115,7 @@ jobs:
         uses: actions/checkout@v4
 
       #######################################################
-      # CONFIGURE AWS
+      # CONFIGURE AWS CREDENTIALS
       #######################################################
 
       - name: Configure AWS Credentials
@@ -100,15 +126,29 @@ jobs:
 
           role-to-assume: arn:aws:iam::986401823783:role/s2pb-githubaction-role
 
-          aws-region: ap-south-1
+          aws-region: ${{ env.AWS_REGION }}
 
       #######################################################
-      # LOGIN TO ECR
+      # LOGIN TO AMAZON ECR
       #######################################################
 
       - name: Login to Amazon ECR
 
         uses: aws-actions/amazon-ecr-login@v2
+
+      #######################################################
+      # VERIFY ECR REPOSITORY
+      #######################################################
+
+      - name: Verify ECR Repository
+
+        run: |
+
+          echo "Checking ECR repository..."
+
+          aws ecr describe-repositories \
+            --repository-names ${ECR_REPOSITORY} \
+            --region ${AWS_REGION}
 
       #######################################################
       # BUILD DOCKER IMAGE
@@ -118,8 +158,12 @@ jobs:
 
         run: |
 
+          echo "======================================="
+          echo "Building Docker Image"
+          echo "======================================="
+
           docker build \
-            -t s2pb-app-hop:${IMAGE_TAG} \
+            -t ${APP_NAME}:${IMAGE_TAG} \
             -f hop-orchestration/docker/Dockerfile \
             ./hop-orchestration
 
@@ -131,8 +175,12 @@ jobs:
 
         run: |
 
+          echo "======================================="
+          echo "Tagging Docker Image"
+          echo "======================================="
+
           docker tag \
-            s2pb-app-hop:${IMAGE_TAG} \
+            ${APP_NAME}:${IMAGE_TAG} \
             ${IMAGE_URI}
 
       #######################################################
@@ -143,7 +191,28 @@ jobs:
 
         run: |
 
+          echo "======================================="
+          echo "Pushing Docker Image"
+          echo "======================================="
+
           docker push ${IMAGE_URI}
+
+      #######################################################
+      # VERIFY IMAGE EXISTS IN ECR
+      #######################################################
+
+      - name: Verify Image in ECR
+
+        run: |
+
+          echo "======================================="
+          echo "Verifying Image in ECR"
+          echo "======================================="
+
+          aws ecr describe-images \
+            --repository-name ${ECR_REPOSITORY} \
+            --image-ids imageTag=${IMAGE_TAG} \
+            --region ${AWS_REGION}
 
       #######################################################
       # FORCE ECS DEPLOYMENT
@@ -152,6 +221,10 @@ jobs:
       - name: Restart ECS Service
 
         run: |
+
+          echo "======================================="
+          echo "Restarting ECS Service"
+          echo "======================================="
 
           aws ecs update-service \
             --cluster ${ECS_CLUSTER_NAME} \
@@ -167,47 +240,44 @@ jobs:
 
         run: |
 
+          echo "======================================="
+          echo "Verifying ECS Deployment"
+          echo "======================================="
+
           aws ecs describe-services \
             --cluster ${ECS_CLUSTER_NAME} \
             --services ${ECS_SERVICE_NAME} \
             --region ${AWS_REGION}
 
       #######################################################
-      # DISPLAY SUCCESS
+      # SUCCESS MESSAGE
       #######################################################
 
       - name: Deployment Successful
 
         run: |
 
+          echo ""
           echo "======================================="
-
           echo "Apache Hop Deployment Successful"
-
           echo "======================================="
-
-          echo "Environment: ${ENVIRONMENT}"
-
           echo ""
 
-          echo "Image URI:"
+          echo "Environment:"
+          echo "${ENVIRONMENT}"
+          echo ""
 
+          echo "Docker Image:"
           echo "${IMAGE_URI}"
-
           echo ""
 
           echo "ECS Cluster:"
-
           echo "${ECS_CLUSTER_NAME}"
-
           echo ""
 
           echo "ECS Service:"
-
           echo "${ECS_SERVICE_NAME}"
-
           echo ""
 
           echo "Deployment completed successfully"
-
           echo "======================================="
