@@ -148,11 +148,6 @@ resource "aws_ecs_task_definition" "airflow" {
         {
           name  = "AIRFLOW__WEBSERVER__ENABLE_PROXY_FIX"
           value = "True"
-        },
-
-        {
-          name  = "AIRFLOW__WEBSERVER__WEB_SERVER_URL_PREFIX"
-          value = "/airflow"
         }
       ]
 
