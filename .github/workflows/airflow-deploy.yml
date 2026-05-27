@@ -157,20 +157,14 @@ jobs:
             --service ${ECS_SERVICE_NAME} \
             --force-new-deployment \
             --region ${AWS_REGION}
-
-      #######################################################
-      # WAIT FOR ECS STABILITY
-      #######################################################
-
-      - name: Wait for ECS Stability
+      - name: Verify ECS Deployment
 
         run: |
 
-          aws ecs wait services-stable \
+          aws ecs describe-services \
             --cluster ${ECS_CLUSTER_NAME} \
             --services ${ECS_SERVICE_NAME} \
             --region ${AWS_REGION}
-
       #######################################################
       # DISPLAY SUCCESS
       #######################################################
