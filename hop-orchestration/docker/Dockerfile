@@ -7,14 +7,13 @@ FROM apache/hop:2.15.0
 USER root
 
 ##########################################################
-# INSTALL PACKAGES
+# INSTALL REQUIRED PACKAGES
 ##########################################################
 
-RUN apt-get update && \
-    apt-get install -y \
-    curl && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+RUN apk add --no-cache \
+    curl \
+    bash \
+    tzdata
 
 ##########################################################
 # WORK DIRECTORY
@@ -26,15 +25,11 @@ WORKDIR /files
 # COPY PROJECT FILES
 ##########################################################
 
-COPY workflows /files/workflows
-
-COPY pipelines /files/pipelines
-
-COPY jdbc /files/jdbc
-
-COPY config /files/config
-
-COPY scripts /files/scripts
+COPY workflows/ /files/workflows/
+COPY pipelines/ /files/pipelines/
+COPY jdbc/ /files/jdbc/
+COPY config/ /files/config/
+COPY scripts/ /files/scripts/
 
 ##########################################################
 # SCRIPT PERMISSIONS
@@ -43,12 +38,24 @@ COPY scripts /files/scripts
 RUN chmod +x /files/scripts/*.sh || true
 
 ##########################################################
-# ENVIRONMENT
+# APACHE HOP ENVIRONMENT
 ##########################################################
 
 ENV HOP_SERVER_PORT=8080
-
 ENV HOP_SERVER_HOST=0.0.0.0
+ENV HOP_LOG_LEVEL=Basic
+
+##########################################################
+# JAVA OPTIONS
+##########################################################
+
+ENV JAVA_OPTS="-Xms512m -Xmx1024m"
+
+##########################################################
+# TIMEZONE
+##########################################################
+
+ENV TZ=Asia/Kolkata
 
 ##########################################################
 # EXPOSE PORT
@@ -57,7 +64,14 @@ ENV HOP_SERVER_HOST=0.0.0.0
 EXPOSE 8080
 
 ##########################################################
-# START HOP SERVER
+# HEALTH CHECK
+##########################################################
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+  CMD curl -f http://localhost:8080/hop/status || exit 1
+
+##########################################################
+# START APACHE HOP SERVER
 ##########################################################
 
 CMD ["/bin/sh", "-c", "/opt/hop/start-hop-server.sh"]
