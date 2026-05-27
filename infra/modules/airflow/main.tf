@@ -43,11 +43,14 @@ resource "aws_lb_target_group" "airflow" {
 
 resource "aws_ecs_task_definition" "airflow" {
 
-  family                   = "${var.app_name}-airflow-${var.env}"
-  network_mode             = "awsvpc"
+  family = "${var.app_name}-airflow-${var.env}"
+
+  network_mode = "awsvpc"
+
   requires_compatibilities = ["FARGATE"]
 
-  cpu    = 1024
+  cpu = 1024
+
   memory = 2048
 
   execution_role_arn = var.ecs_task_execution_role_arn
@@ -134,17 +137,22 @@ resource "aws_ecs_task_definition" "airflow" {
         },
 
         ####################################################
-        # ALB + PROXY
+        # ALB + PROXY + PATH BASED ROUTING
         ####################################################
 
         {
           name  = "AIRFLOW__WEBSERVER__BASE_URL"
-          value = "http://${var.alb_dns_name}"
+          value = "http://${var.alb_dns_name}/airflow"
         },
 
         {
           name  = "AIRFLOW__WEBSERVER__ENABLE_PROXY_FIX"
           value = "True"
+        },
+
+        {
+          name  = "AIRFLOW__WEBSERVER__WEB_SERVER_URL_PREFIX"
+          value = "/airflow"
         }
       ]
 
@@ -158,8 +166,10 @@ resource "aws_ecs_task_definition" "airflow" {
 
         options = {
 
-          awslogs-group         = aws_cloudwatch_log_group.airflow.name
-          awslogs-region        = var.aws_region
+          awslogs-group = aws_cloudwatch_log_group.airflow.name
+
+          awslogs-region = var.aws_region
+
           awslogs-stream-prefix = "ecs"
         }
       }
@@ -173,12 +183,15 @@ resource "aws_ecs_task_definition" "airflow" {
 
 resource "aws_ecs_service" "airflow" {
 
-  name            = "${var.app_name}-airflow-service-${var.env}"
-  cluster         = var.ecs_cluster_id
+  name = "${var.app_name}-airflow-service-${var.env}"
+
+  cluster = var.ecs_cluster_id
+
   task_definition = aws_ecs_task_definition.airflow.arn
 
   desired_count = 1
-  launch_type   = "FARGATE"
+
+  launch_type = "FARGATE"
 
   health_check_grace_period_seconds = 600
 
@@ -223,9 +236,12 @@ resource "aws_lb_listener_rule" "airflow_redirect" {
 
     redirect {
 
-      path        = "/airflow/"
-      port        = "80"
-      protocol    = "HTTP"
+      path = "/airflow/"
+
+      port = "80"
+
+      protocol = "HTTP"
+
       status_code = "HTTP_301"
     }
   }
@@ -260,7 +276,7 @@ resource "aws_lb_listener_rule" "airflow" {
 
     path_pattern {
 
-      values = ["/*"]
+      values = ["/airflow/*"]
     }
   }
 }
