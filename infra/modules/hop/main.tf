@@ -120,7 +120,6 @@ resource "aws_lb" "hop" {
 
   subnets = var.public_subnets
 }
-
 ############################################################
 # TARGET GROUP
 ############################################################
@@ -158,7 +157,7 @@ resource "aws_lb_target_group" "hop" {
 
     timeout = 30
 
-    path = "/hop/status"
+    path = "/status"
 
     protocol = "HTTP"
 
