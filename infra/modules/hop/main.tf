@@ -210,7 +210,7 @@ resource "aws_ecs_task_definition" "hop" {
 
       name = "${var.app_name}-hop"
 
-      image = "${var.ecr_repository_url}:${var.app_name}-${var.env}"
+      image = "${var.ecr_repository_url}:s2pb-app-hop-${var.env}"
 
       essential = true
 
